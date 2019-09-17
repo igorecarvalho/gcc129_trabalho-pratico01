@@ -62,11 +62,15 @@ def calculaVazao():
 def calculaPerda(mensagem, num_pcts = 10000):
 
 	for i in range(num_pcts):
+		print('enviando... ', i)
 		clienteUDPerda.sendto(mensagem.encode(), (ip_servidor, porta_servidorUDPTP))
+	
 	mensagem = 'SAI'
+	print('enviando... ', mensagem)
 	clienteUDPerda.sendto(mensagem.encode(), (ip_servidor, porta_servidorUDPTP))
 
 	mensagem, addr = clienteUDPerda.recvfrom(1024)
+	print(mensagem)
 	clienteUDPerda.close()
 	return mensagem.decode()
 
@@ -89,7 +93,7 @@ def main():
         	tempo = calculaVazao()
         	print('Tempo gasto para recebimento: ', tempo, 's')
 
-        	print('Vazão: ', float(statinfo.st_size)/float(tempo), 'b/s')
+        	print('Vazão: ', (float(statinfo.st_size)/float(tempo))*1024, 'Kb/s')
 
         elif(opcao == '3'):
             print('Teste de taxa de perda\n')
