@@ -1,0 +1,125 @@
+#arquivo cliente 
+import socket
+import threading
+from datetime import datetime
+import time
+## Informações do servidor: Host e porta para conexao para o calculo do RTT
+udp_ip1 = "127.0.0.1"
+udp_port1 = 4242
+
+## Informações do servidor: Host e porta para conexao para o calculo da taxa de perdas
+udp_ip2 = "127.0.0.1"
+udp_port2 = 4343
+
+## Informações do servidor: Host e porta para conexao para o calculo da vazao
+tcp_ip = '127.0.0.1'
+tcp_port = 5005
+
+#funcao aulixiar que converte o tempo no formato string para float e o retorna em segundos
+def segundos(palavra):
+    horas = int(palavra[11] + palavra[12])
+    minutos = int(palavra[14] + palavra[15])
+    segundos = int(palavra[17] + palavra[18])
+    microsegundos = int(palavra[20]+palavra[21]+palavra[22]+palavra[23]+palavra[24]+palavra[25])
+    microsegundos += horas * 1000000*60*60
+    microsegundos += minutos * 1000000*60
+    microsegundos += segundos * 1000000
+    segundos = microsegundos/1000000
+    return segundos;
+
+# Funcao para calculo do rtt utilizando udp
+def rtt(totalPacotes):
+    
+    sock1 = socket.socket(socket.AF_INET, # Internet
+                     socket.SOCK_DGRAM) # UDP
+    mensagem = 'teste'
+    somatorioHora = 0
+    #marca o inicio do envio de pacotes
+    inicio = datetime.now()
+    #envia a quantidade de pacotes e os recebe de volta
+    for i in range(0,totalPacotes):
+        sock1.sendto(mensagem.encode(), (udp_ip1, udp_port1))
+        message = sock1.recvfrom(10)
+    #marca o fim do envio de pacotes
+    fim = datetime.now()
+    #calcula o rtt
+    rtt = (fim - inicio)/totalPacotes
+    print('O rtt calculo foi: ', rtt, '\n')
+
+#calcula a vazao utilizando o protocolo tcp
+def vazao():
+    
+    ## Criacao do socket TCP e inicio de escuta
+    socket_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    socket_tcp.connect((tcp_ip, tcp_port))
+    #arquivo a ser enviado
+    arquivo = open('/home/victorhugo/Documentos/Faculdade/2019.2/Sistemas Distribuidos/Trabalho/arquivo/arquivo3.txt', 'rb')
+    #marca o inicio do envio
+    inicio = str(datetime.now())
+    cont = 0
+    #divide o arquivo por linhas
+    for i in arquivo.readlines():
+        #print(len(i))
+        socket_tcp.send(i)
+        cont = cont+1
+        #time.sleep(0.003)
+    #envia a mensagem para o servidor saber que acabou o envio
+    sair =  'EXIT'
+    socket_tcp.send(sair.encode())
+    #fecha o arquivo
+    arquivo.close()
+    #recebe o tempo em que o servidor recebeu o ultimo pacote
+    fim = socket_tcp.recv(1024).decode()
+    #transforma os dois tempos para segundos 
+    fim = segundos(fim)
+    inicio = segundos(inicio)
+    #subtrai do tempo final o inicio
+    tempo = fim - inicio
+    #print('segundos:', tempo)
+    #tamanho do arquivo em Bytes
+    tamanhoArq = 4718592
+
+    taxaVazao = tamanhoArq /tempo
+    print(taxaVazao, 'Bytes por segundo\n')
+
+#funcao para calcular a taxa de perdas usando o protocolo UDP
+def taxaDePerda(numeroPacotes):
+	#cria o socket
+    sock2 = socket.socket(socket.AF_INET, # Internet
+                     socket.SOCK_DGRAM) # UDP
+    mensagem = 'teste'
+    mensagem = mensagem.encode()
+    #envia a mensagem diversas vezes (numero passado pelo usuario)
+    for i in range(numeroPacotes):
+        sock2.sendto(mensagem, (udp_ip2, udp_port2))
+        time.sleep(0.00002)
+    #envia a mensagem pro servidor saber que acabou
+    mensagem = 'EXIT'
+    sock2.sendto(mensagem.encode(),(udp_ip2,udp_port2))
+
+    #recebe o total de pacotes entregues
+    mensagem, addr = sock2.recvfrom(128)
+    totalPerda = int (mensagem)
+    #calcula o total de perda
+    print('Taxa de Perda =', (numeroPacotes - totalPerda)/numeroPacotes, '\n')
+    sock2.close()
+
+
+def main():
+    loop = True
+    while(loop):
+        saida = '1 - Testar o RTT. \n2 - Testar a vazão. \n3 - Testar a taxa de perda de pacotes. \n4 - Sair \n'
+        opcao = input(saida)
+        if opcao == '1':
+            totalPacotes = int(input('numero de pacotes:'))
+            rtt(totalPacotes)
+        elif(opcao == '2'):
+            vazao()
+        elif(opcao == '3'):
+            totalPacotes = int(input('numero de pacotes:'))
+            taxaDePerda(totalPacotes)
+        elif(opcao == '4'):
+            loop = False
+        else:
+            print('entrada invalida:\n')
+main()
