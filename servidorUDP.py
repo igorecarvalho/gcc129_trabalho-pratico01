@@ -30,7 +30,7 @@ def devolver(msg, addr):
 
 def calculaRTT():
 	while True:
-		mensagem_frag, addr = servidorUDP.recvfrom(10)
+		mensagem_frag, addr = servidorUDP.recvfrom(1024)
 		print("mensagem recebida:", mensagem_frag.decode())
 		devolver(mensagem_frag, addr)
 	
@@ -46,15 +46,18 @@ def calculaVazao():
 
 	flag = True
 	while flag:
-		#print('vem dado')
+		print('vem dado')
 		dados = conexao.recv(1024)
-		if dados.decode() == 'SAICODE':
+		#teste = dados.decode()
+		saida = 'SAI'
+		print(dados, '\n')
+		if dados == saida.encode():
 			flag = False
 		else:
 			arquivo.write(dados)
 
 	arquivo.close()
-	#print('saiu do for')
+	print('saiu do for')
 	tempo_fim = time.time()
 
 	tempo_gasto = str(tempo_fim - tempo_inicio)
@@ -71,7 +74,7 @@ def calculaPerda():
 		flag = True
 		while flag:
 			mensagem = mensagem_frag.decode()
-			if mensagem == 'SAICODE':
+			if mensagem == 'SAI':
 				flag = False
 			else:
 				cont = cont + 1

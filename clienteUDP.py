@@ -24,7 +24,7 @@ clienteTCP.connect((ip_servidor, porta_servidorTCP))
 path = 'hue.txt'
 
 def receber_mensagem():
-	mensagem = clienteUDP.recvfrom(512)
+	mensagem = clienteUDP.recvfrom(1024)
 	return mensagem
 
 def enviar_mensagem(mensagem):
@@ -45,17 +45,16 @@ def calculaRTT(mensagem, num_ping = 10):
 	return str(rtt_medio/num_ping)
 
 def calculaVazao():
-
 	arquivo = open(path, 'rb')
 
 	for i in arquivo.readlines():
 		clienteTCP.send(i)
-		#print('enviando..')
-
-	clienteTCP.send('SAICODE'.encode())
+		print('enviando..')
+	saida = 'SAI'
+	clienteTCP.send(saida.encode())
 
 	arquivo.close()
-	#print('saiu aqui tbm')
+	print('saiu aqui tbm')
 	tempo_gasto = clienteTCP.recv(1024)
 	clienteTCP.close()
 	return tempo_gasto.decode()
@@ -64,7 +63,7 @@ def calculaPerda(mensagem, num_pcts = 10000):
 
 	for i in range(num_pcts):
 		clienteUDPerda.sendto(mensagem.encode(), (ip_servidor, porta_servidorUDPTP))
-	mensagem = 'SAICODE'
+	mensagem = 'SAI'
 	clienteUDPerda.sendto(mensagem.encode(), (ip_servidor, porta_servidorUDPTP))
 
 	mensagem, addr = clienteUDPerda.recvfrom(1024)
