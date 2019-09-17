@@ -74,6 +74,7 @@ def calculaPerda():
 		flag = True
 		while flag:
 			mensagem = mensagem_frag.decode()
+			saida = 'SAI'
 			if mensagem == 'SAI':
 				flag = False
 			else:

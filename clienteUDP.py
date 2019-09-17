@@ -93,7 +93,7 @@ def main():
         	tempo = calculaVazao()
         	print('Tempo gasto para recebimento: ', tempo, 's')
 
-        	print('Vazão: ', (float(statinfo.st_size)/float(tempo))*1024, 'Kb/s')
+        	print('Vazão: ', (float(statinfo.st_size)/float(tempo))/1024, 'Kb/s')
 
         elif(opcao == '3'):
             print('Teste de taxa de perda\n')
