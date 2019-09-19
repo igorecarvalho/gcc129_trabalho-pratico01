@@ -50,6 +50,7 @@ def calculaVazao():
 	for i in arquivo.readlines():
 		clienteTCP.send(i)
 		print('enviando..')
+		time.sleep(0.00002)
 	saida = 'SAI'
 	clienteTCP.send(saida.encode())
 
@@ -64,6 +65,7 @@ def calculaPerda(mensagem, num_pcts = 10000):
 	for i in range(num_pcts):
 		print('enviando... ', i)
 		clienteUDPerda.sendto(mensagem.encode(), (ip_servidor, porta_servidorUDPTP))
+		time.sleep(0.00002)
 	
 	mensagem = 'SAI'
 	print('enviando... ', mensagem)
@@ -83,7 +85,7 @@ def main():
         if opcao == '1':
             print('Teste de RTT')
             mensagem = input("Digite a msg para envio: ")
-            print('Tempo gasto: ', calculaRTT(mensagem), 's')
+            print('Tempo gasto: ', calculaRTT(mensagem), 's\n')
 
         elif(opcao == '2'):
         	print('Teste Vazão')
@@ -93,7 +95,7 @@ def main():
         	tempo = calculaVazao()
         	print('Tempo gasto para recebimento: ', tempo, 's')
 
-        	print('Vazão: ', (float(statinfo.st_size)/float(tempo))/1024, 'Kb/s')
+        	print('Vazão: ', (float(statinfo.st_size)/float(tempo))/1024, 'Kb/s\n')
 
         elif(opcao == '3'):
             print('Teste de taxa de perda\n')
@@ -101,10 +103,10 @@ def main():
             mensagem = input("Digite a msg para envio: ")
             num_pct_recv = calculaPerda(mensagem)
             print('Numero de pcts recebidos: ', num_pct_recv)
-            print('Taxa de Perda: ', int(num_pct_recv)/10000, '%')
+            print('Taxa de Perda: ', (1-(float(num_pct_recv)/10000))*100, '%\n')
 
         elif(opcao == '4'):
             menu = False
         else:
-            print('entrada invalida:\n')
+            print('Entrada invalida:\n')
 main()

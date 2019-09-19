@@ -67,23 +67,21 @@ def calculaVazao():
 	servidorTCP.close()
 
 def calculaPerda():
-	while True:
-		cont = 0
+	cont = 0
+	flag = True
+	while flag:
 		mensagem_frag, addr = servidorUDPerda.recvfrom(1024)
-		
-		flag = True
-		while flag:
-			mensagem = mensagem_frag.decode()
-			saida = 'SAI'
-			if mensagem == 'SAI':
-				flag = False
-			else:
-				cont = cont + 1
-				mensagem_frag, addr = servidorUDPerda.recvfrom(1024)
-		
-		print(cont)
-		servidorUDPerda.sendto(str(cont).encode(), addr)
-
+		mensagem = mensagem_frag.decode()
+		saida = 'SAI'
+		print('recebendo.. ', cont, ' ')
+		if mensagem == 'SAI':
+			flag = False
+		else:
+			cont = cont + 1
+			mensagem_frag, addr = servidorUDPerda.recvfrom(1024)
+	
+	print(cont)
+	servidorUDPerda.sendto(str(cont).encode(), addr)
 	servidorUDPerda.close()
 
 def main():
